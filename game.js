@@ -25,37 +25,41 @@ function reset() {
   target.hp = 100
   target.hits = 0
   target.specials = []
+  update()
 }
 
 function slap() {
   if (shield.shielded == true || quadDamage.applied == true) {
-    target.hp = target.hp - Math.round(((1 + fireDamage.damage) * shield.multiper * quadDamage.multiplier))
+    target.hp = target.hp - Math.round(((1 + fireDamage.damage) * shield.multiplier * quadDamage.multiplier))
   } else {
     target.hp -= 1
     target.hp -= fireDamage.damage
   }
+  target.hits++
   decrementMods()
   update()
 }
 
 function punch() {
   if (shield.shielded == true || quadDamage.applied == true) {
-    target.hp = target.hp - Math.round(((5 + fireDamage.damage) * shield.multiper * quadDamage.multiplier))
+    target.hp = target.hp - Math.round(((5 + fireDamage.damage) * shield.multiplier * quadDamage.multiplier))
   } else {
     target.hp -= 5
     target.hp -= fireDamage.damage
   }
+  target.hits++
   decrementMods()
   update()
 }
 
 function kick() {
   if (shield.shielded == true || quadDamage.applied == true) {
-    target.hp = target.hp - Math.round(((10 + fireDamage.damage) * shield.multiper * quadDamage.multiplier))
+    target.hp = target.hp - Math.round(((10 + fireDamage.damage) * shield.multiplier * quadDamage.multiplier))
   } else {
     target.hp -= 10
     target.hp -= fireDamage.damage
   }
+  target.hits++
   decrementMods()
   update()
 }
@@ -79,23 +83,59 @@ function addQuad() {
   quadDamage.turns = 2
 }
 
-function addMods() {
-  let modifiedDamage = 0
-  if (target.specials[0])
-    return modifiedDamage
-}
+// function addMods() {
+//   let modifiedDamage = 0
+//   if (target.specials[0])
+//     return modifiedDamage
+// }
 
 function update() {
+  let template = ""
+  template += /*html*/ `
+    <div class="row">
+      <div class="col-4">
+        <img class="img-fluid" src=${target.img}>
+      </div>
+      <div class="col-6">
+        <h3>HP: ${target.hp}</h3>
+        <h3>Hits: ${target.hits}</h3>
+        <h3>${target.name}</h3>
+      </div>
+    </div>
+    `
+  let myTemplate = document.getElementById("update").innerHTML = template
 
+  if (target.hp < 1) {
+    let primebtn = document.querySelector(".btn-primary")
+    let secbtn = document.querySelectorAll(".btn-secondary")
+    primebtn.classList.add("disabled")
+    for (let i = 0; i < secbtn.length; i++) {
+      secbtn[i].classList.add("disabled")
+
+    }
+  }
+  // document.getElementsByClassName("btn-primary").classList.add("hidden")
 }
+
 function decrementMods() {
-  if (fireDamage.turns > 0) {
+  if (fireDamage.turns > 1) {
     fireDamage.turns--
+  } else {
+    fireDamage.onFire = false
+    fireDamage.damage = 0
   }
-  if (shield.turns > 0) {
+
+  if (shield.turns > 1) {
     shield.turns--
+  } else {
+    shield.shielded = false
+    shield.multiplier = 1
   }
-  if (quadDamage.turns > 0) {
+
+  if (quadDamage.turns > 1) {
     quadDamage.turns--
+  } else {
+    quadDamage.applied = false
+    quadDamage.multiplier = 1
   }
 }
